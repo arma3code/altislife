@@ -1,0 +1,371 @@
+author = "Union RP Team";
+onLoadName = "Union Life v1.1";
+onLoadMission = "На основе Tonic's AltisLife RPG";
+LoadScreen  = "\union_config\extremo_logo.paa";
+
+joinUnassigned = 1;
+saving = 0;
+disabledAI = 1;
+disableChannels[]={{0,1,1},{1,1,1},{2,1,1},{3,1,1},{4,1,1},{5,1,1},{6,1,1}};
+enableDebugConsole = 0;
+
+disableRandomization[] = {"All"};
+onPauseScript[] = {"UnionClient_system_escInterupt"};
+
+showGroupIndicator = 0;
+forceRotorLibSimulation = 0;
+respawn = 3;
+respawndelay = 5;
+respawnDialog = 0;
+respawnButton = 0;
+respawnTemplates[] = {};
+
+class Header {
+	gameType = RPG;
+	minPlayers = 1;
+	maxPlayers = 200;
+};
+
+showHUD[] = {
+	1,	// Scripted HUD (same as showHUD command)
+	1,	// Vehicle + soldier info
+	0,	// Vehicle radar [HIDDEN]
+	0,	// Vehicle compass [HIDDEN]
+	0,	// Tank direction indicator
+	0,	// Commanding menu
+	0,	// Group Bar
+	1	// HUD Weapon Cursors
+};
+
+corpseManagerMode = 0;
+wreckManagerMode = 0;
+
+#include "config\Config_Master.hpp"
+#include "dialog\MasterHandler.h"
+class CfgServer {
+    DatabaseName = "altislife"; //Config name that'll be grep in the extdb-conf.ini. Default: [altislife]
+    DebugMode = 1; //Enable many server/hc debugging logs. Default: 0 (1 = Enabled / 0 = Disabled)
+    HeadlessSupport = 0; //Enable/Disable Headless client support. Default: 1 (1 = Enabled / 0 = Disabled)
+    /*
+    Enabled: When HeadlessSupport is set to 1 (enabled), the server will run without fault when no Headless Client is connected. However, it will support the Headless Client if you choose to connect one.
+    Disabled: If HeadlessSupport is set to 0 (disabled), the connection of a Headless Client will make no difference. This option will increase server performance a TINY but negligible amount.
+    */
+};
+class RscTitles
+{
+	#include "dialog\ui.hpp"
+	#include "dialog\deathScreenV2.h"
+	#include "dialog\progress.hpp"
+	#include "dialog\hud_nameTags.h"
+	#include "dialog\CrimeList.hpp"
+	#include "dialog\mouseTarget.h"
+};
+
+class CfgFunctions
+{
+	class Bootstrap
+	{
+		class Functions
+		{
+			file = "bootstrap";
+			class preInit {preInit = 1;};
+			class postInit {postInit = 1;};
+		};
+	};
+};
+
+class CfgDebriefing
+{
+
+	class ModsReq
+	{
+		title = "Отсутствуют моды";
+		subtitle = "Вы были исключены из игры";
+		description = "Для игры на сервере Union необходимо запустить Arma 3 со следующими модами: Community Base Addons, Task Force Arrowhead Radio и Union Altis Life. Всю необходимую информацию по установке и настройке вы можете найти на нашем сайте: http://unionrp.ru/";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class TaskForce
+	{
+		title = "Ошибка";
+		subtitle = "Вы были исключены из игры";
+		description = "Для игры на сервере Union необходимо настроить TeamSpeak 3 и мод Task Force Arma 3. Во время игры вы должны находиться на нашем TeamSpeak сервере, в соответствующем канале.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class Aborted
+	{
+		title = "Выход из игры";
+		subtitle = "Вы вышли с сервера.";
+		description = "Ваши данные были сохранены на сервере.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class NotWhitelisted
+	{
+		title = "Ошибка";
+		subtitle = "Вы не можете занимать этот слот";
+		description = "Вы не можете играть за этот слот, так как не прописаны в нем. Зайдите за другой слот.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class NotWhitelistedReb
+	{
+		title = "Ошибка";
+		subtitle = "Вы не можете занимать повстанческий слот";
+		description = "Вы не можете играть за фракцию повстанцев, так как не вступили в ряды сопротивления. Зайдите за гражданский слот и завербуйтесь на КПП Скопос.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class NotWhitelistedCiv
+	{
+		title = "Ошибка";
+		subtitle = "Вы не можете занимать гражданский слот";
+		description = "Вы не можете играть за фракцию гражданских, так как вступили в ряды сопротивления. Зайдите за повстанческий слот и купите паспорт в посольстве.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class NotYouServerMap_Altis
+	{
+		title = "Ошибка";
+		subtitle = "Закрепление на другом острове";
+		description = "Вы закреплены на острове Altis. Чтобы зайти на Tanoa вам неопходимо посетить офис туристической фирмы и оформить путевку";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+	class NotYouServerMap_Tanoa
+	{
+		title = "Ошибка";
+		subtitle = "Закрепление на другом острове";
+		description = "Вы закреплены на острове Tanoa. Чтобы зайти на Altis вам неопходимо посетить офис туристической фирмы и оформить путевку";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class BetaTestOnlyForVip
+	{
+		title = "Ошибка";
+		subtitle = "Закрытый тест";
+		description = "К сожалению доступ к закрытому бета-тесту есть только у членов VIP-клуба. Вам придется дождаться выхода обновления на основной сервер.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class Blacklisted
+	{
+		title = "Mission Failed";
+		subtitle = "You are blacklisted from cops";
+		description = "You are not allowed to be a cop due to previous actions and the admins have removed you from being a cop.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class SpyGlass
+	{
+		title = "The SpyGlass sees you";
+		subTitle = "You were detected by the SpyGlass";
+		description = "You were detected for cheating and have been reported to the server. Enjoy your day.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class SpyGlassAddons
+	{
+		title = "The SpyGlass sees you";
+		subTitle = "You were detected by the SpyGlass";
+		description = "Ошибка инициализации аддонов! Попробуйте перезапустить клиент и проверить актуальная ли версия мода у вас установлена.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class SpyGlassAddonsMissed
+	{
+		title = "Ошибка";
+		subTitle = "Проблема с файлами";
+		description = "У вас отсутствуют необходимые файлы. Убедитесь, что у вас установлена последняя версия и включен мод Union";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class SpyGlassAddonsNotWhite
+	{
+		title = "Ошибка";
+		subTitle = "Проблема с файлами";
+		description = "У вас есть лишние файлы. Убедитесь, что у вас установлена последняя версия мода Union и не включены сторонние моды.";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class SpyGlassAddonsVersion
+	{
+		title = "The SpyGlass sees you";
+		subTitle = "You were detected by the SpyGlass";
+		description = "У вас устаревшая версия мода Union! Проверьте наличие обновлений через Arma3Sync!";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class NameExists
+	{
+		title = "Изменение имени";
+		subTitle = "";
+		description = "За вашим PID закреплёно другое имя, которое вы можете посмотреть в личном кабинете lk.unionrp.ru. Измените имя в профиле ArmA на то, что указано в личном кабинете!";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class WrongServer
+	{
+		title = "Смена сервера";
+		subTitle = "";
+		description = "Вы уже закреплены на одном из наших серверов и не сможете сменить его до следующего рестарта. Вам придется подождать или вы можете вернуться и играть на предыдущем сервере";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class NameAlreadyInBasa
+	{
+		title = "Имя занято";
+		subTitle = "";
+		description = "На острове уже есть житель с таким же именем. Измените его в своем профиле на уникальное";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class BadProfileName
+	{
+		title = "Недопустимое имя";
+		subTitle = "";
+		description = "Имя персонажа содержит кириллицу, цифры, недопустимые символы, двойной пробел или пробел в конце! Имя может содержать только латинские буквы от A до Z и пробелы!";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+
+	class Banned
+	{
+		title = "BANNED";
+		subTitle = "";
+		description = "У вас бан на сервере Union. Подробнее о причинах бана и его сроке вы можете узнать в личном кабинете: http://lk.unionrp.ru";
+		pictureBackground = "";
+		picture = "";
+		pictureColor[] = {0,0.3,0.6,1};
+	};
+};
+
+class CfgNotifications
+{
+	class MedicalRequestEmerg
+	{
+		title = "EMS Requested";
+		iconPicture = "\A3\ui_f\data\map\mapcontrol\taskIcon_ca.paa";
+		description = "%1";
+		duration = 5;
+		priority = 7;
+	};
+
+	class DeliveryAssigned
+	{
+		title = "Delivery Job Accepted";
+		iconPicture = "\A3\ui_f\data\map\mapcontrol\taskIcon_ca.paa";
+		description = "%1";
+		duration = 10;
+		priority = 7;
+	};
+
+	class DeliveryFailed
+	{
+		title = "Delivery Job Failed";
+		iconPicture = "\A3\ui_f\data\map\mapcontrol\taskiconfailed_ca.paa";
+		description = "%1";
+		duration = 7;
+		priority = 7;
+	};
+
+	class DeliverySucceeded
+	{
+		title = "Delivery Job Completed";
+		iconPicture = "\A3\ui_f\data\map\mapcontrol\taskIcondone_ca.paa";
+		description = "%1";
+		duration = 6;
+		priority = 6;
+	};
+
+	class TextMessage
+	{
+		title = "Received A Text Message";
+		iconPicture = "\union_pack\icons\messagenew.paa";
+		description = "%1";
+		duration = 10;
+		priority = 6;
+	};
+
+	class PoliceDispatch
+	{
+		title = "Police Message";
+		iconPicture = "\union_pack\icons\messagepolice.paa";
+		description = "%1";
+		duration = 10;
+		priority = 6;
+	};
+
+	class AdminDispatch
+	{
+		title = "Admin Dispatch Center";
+		iconPicture = "\union_pack\icons\messageadmin.paa";
+		description = "%1";
+		duration = 10;
+		priority = 6;
+	};
+
+	class AdminMessage
+	{
+		title = "Admin Message";
+		iconPicture = "\union_pack\icons\messageadmin.paa";
+		description = "%1";
+		duration = 10;
+		priority = 5;
+	};
+
+	class MedicMessage
+	{
+		title = "Medic Message";
+		iconPicture = "\union_pack\icons\messagepolice.paa";
+		description = "%1";
+		duration = 10;
+		priority = 6;
+	};
+
+	class TaxiMessage
+	{
+		title = "Taxi Dispatch Center";
+		iconPicture = "\union_pack\icons\messagenew.paa";
+		description = "%1";
+		duration = 10;
+		priority = 6;
+	};
+};

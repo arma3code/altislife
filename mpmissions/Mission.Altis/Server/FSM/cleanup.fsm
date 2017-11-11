@@ -1,0 +1,201 @@
+/*%FSM<COMPILE "D:\Program Files (x86)\Steam\steamapps\common\Arma 3 Tools\FSMEditor\scriptedFSM.cfg, Server-Side Cleanup">*/
+/*%FSM<HEAD>*/
+/*
+item0[] = {"init",0,250,-62.908096,-391.651611,27.091887,-341.651672,0.000000,"init"};
+item1[] = {"true",8,218,-62.976639,-315.185364,27.023363,-265.185364,0.000000,"true"};
+item2[] = {"Share__Work_load",2,250,-64.183350,-224.681931,25.816656,-174.681931,0.000000,"Share " \n "Work-load"};
+item3[] = {"Continue__",4,218,-220.591476,74.216980,-130.591476,124.216980,0.000000,"" \n "" \n "Continue" \n "" \n ""};
+item4[] = {"Time_Check",4,218,-219.425827,-133.310532,-129.425964,-83.310455,0.000000,"Time Check"};
+item5[] = {"Delete_Dead_Cars",2,4346,-220.186951,-29.248400,-130.187195,20.751413,0.000000,"Delete" \n "Dead" \n "Cars"};
+item6[] = {"",7,210,-312.538239,95.295059,-304.538239,103.295059,0.000000,""};
+item7[] = {"",7,210,-312.798218,-204.081940,-304.798218,-196.081940,0.000000,""};
+item8[] = {"End_Cleanup_",1,250,-64.828239,87.581070,25.171984,137.581238,0.000000,"" \n "End Cleanup" \n ""};
+item9[] = {"Check_for_HC_",4,218,-65.059021,-30.047342,24.941008,19.952658,0.000000,"" \n "Check for HC" \n ""};
+link0[] = {0,1};
+link1[] = {1,2};
+link2[] = {2,4};
+link3[] = {3,6};
+link4[] = {4,5};
+link5[] = {5,3};
+link6[] = {5,9};
+link7[] = {6,7};
+link8[] = {7,2};
+link9[] = {9,8};
+globals[] = {0.000000,0,0,0,0,640,480,1,53,6316128,1,-360.906525,331.238159,263.516205,-463.399841,836,878,1};
+window[] = {2,-1,-1,-1,-1,990,78,1442,78,3,854};
+*//*%FSM</HEAD>*/
+class FSM
+{
+        fsmName = "Server-Side Cleanup";
+        class States
+        {
+                /*%FSM<STATE "init">*/
+                class init
+                {
+                        name = "init";
+                        itemno = 0;
+                        init = /*%FSM<STATEINIT""">*/"private[""_veh"",""_units"",""_fuel"",""_cars"",""_thread"",""_lastCheck""];" \n
+                         "_cars = diag_tickTime;" \n
+                         "cleanupFSM setFSMVariable [""stopfsm"",false];"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "true">*/
+                                class true
+                                {
+                                        itemno = 1;
+                                        priority = 0.000000;
+                                        to="Share__Work_load";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"true"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "Share__Work_load">*/
+                class Share__Work_load
+                {
+                        name = "Share__Work_load";
+                        itemno = 2;
+                        init = /*%FSM<STATEINIT""">*/""/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "Time_Check">*/
+                                class Time_Check
+                                {
+                                        itemno = 4;
+                                        priority = 0.000000;
+                                        to="Delete_Dead_Cars";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"((diag_tickTime - _cars) > (3 * 60))"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "Delete_Dead_Cars">*/
+                class Delete_Dead_Cars
+                {
+                        name = "Delete_Dead_Cars";
+                        itemno = 5;
+                        init = /*%FSM<STATEINIT""">*/"_cars = diag_tickTime;" \n
+                         "{" \n
+                         "    _veh = _x;" \n
+                         "	_dbInfo = _veh getVariable [""dbInfo"",[]];" \n
+                         "	if (!alive _veh) then {" \n
+                         "        if !(_dbInfo isEqualTo []) then {" \n
+                         "            _uid = _dbInfo select 0;" \n
+                         "            _plate = _dbInfo select 1;" \n
+                         "          " \n
+                         "		    if (_veh getVariable [""isInsured"",false]) then {" \n
+                         "                _query = format [""UPDATE vehicles SET alive='1', active='0', insure='1' WHERE pid='%1' AND plate='%2'"",_uid,_plate];" \n
+                         "                _query spawn {" \n
+                         "				    _thread = [_this,1] call DB_fnc_asyncCall;" \n
+                         "				    diag_log ""isInsured true"";" \n
+                         "		        };" \n
+                         "		    } else {" \n
+                         "			    _query = format [""UPDATE vehicles SET alive='0' WHERE pid='%1' AND plate='%2'"",_uid,_plate];" \n
+                         "                _query spawn {" \n
+                         "				    _thread = [_this,1] call DB_fnc_asyncCall;" \n
+                         "				    diag_log ""isInsured false"";" \n
+                         "		        };" \n
+                         "			};" \n
+                         "        };" \n
+                         "		" \n
+                         "		if (!isNil ""_veh"" && {!isNull _veh}) then {" \n
+                         "             deleteVehicle _veh;" \n
+                         "        };" \n
+                         "    };" \n
+                         "	" \n
+                         "	_lastCheck = _veh getVariable ""LAST_CHECK"";" \n
+                         "	if (isNil ""_lastCheck"") then {" \n
+                         "		_veh setVariable[""LAST_CHECK"", diag_tickTime];" \n
+                         "		_lastCheck = diag_tickTime;" \n
+                         "		diag_log format[""DEBUG: VehiclesTime _veh %1"",_veh];" \n
+                         "	};" \n
+                         "    _class = getText(configFile >> ""CfgVehicles"" >> (typeOf _veh) >> ""vehicleClass"");" \n
+                         "	if ((diag_tickTime - _lastCheck > 1200) && (_class in [""LandVehicle"",""Air"",""Ship"",""Armored"",""Submarine""])) then {" \n
+                         "		private _units = {(_x distance _veh < 500)} count playableUnits;" \n
+                         "        //if ((getNumber(missionConfigFile >> ""Life_Settings"" >> ""save_vehicle_fuel"")) isEqualTo 1) then {_fuel = (fuel _veh);};" \n
+                         "        if ((crew _veh isEqualTo []) && (_units isEqualTo 0)) then {" \n
+                         "		    deleteVehicle _veh;" \n
+                         "            waitUntil {isNull _veh};" \n
+                         "		    if (isNull _veh && !(_dbInfo isEqualTo [])) then {" \n
+                         "                _uid = _dbInfo select 0;" \n
+                         "                _plate = _dbInfo select 1;" \n
+                         "			    _query = format[""UPDATE vehicles SET active='0' WHERE pid='%1' AND plate='%2'"",_uid,_plate];" \n
+                         "			    _query spawn {" \n
+                         "                    _thread = [_this,1] call DB_fnc_asyncCall;" \n
+                         "					diag_log format[""DEBUG: VehiclesTime del %1 | query %2 | Ok? %3"",_class,_this,_thread];" \n
+                         "					_veh setVariable [""LAST_CHECK"",nil];" \n
+                         "			    };" \n
+                         "			}" \n
+                         "			" \n
+                         "        };" \n
+                         "	};" \n
+                         "} forEach vehicles;" \n
+                         "" \n
+                         "{" \n
+                         "    if ((typeOf _x) in [""Land_BottlePlastic_V1_F"",""Land_TacticalBacon_F"",""Land_Can_V3_F"",""Land_CanisterFuel_F"", ""Land_Can_V3_F"",""Land_Money_F"",""Land_Suitcase_F""]) then {" \n
+                         "        deleteVehicle _x;" \n
+                         "    };" \n
+                         "} forEach (allMissionObjects ""Thing"");" \n
+                         "" \n
+                         "//Group cleanup." \n
+                         "{" \n
+                         "  if (units _x isEqualTo [] && local _x) then {" \n
+                         "      deleteGroup _x;" \n
+                         "  };" \n
+                         "} forEach allGroups;"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "Check_for_HC_">*/
+                                class Check_for_HC_
+                                {
+                                        itemno = 9;
+                                        priority = 0.000000;
+                                        to="End_Cleanup_";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"cleanupFSM getFSMVariable ""stopfsm"""/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                                /*%FSM<LINK "Continue__">*/
+                                class Continue__
+                                {
+                                        itemno = 3;
+                                        priority = 0.000000;
+                                        to="Share__Work_load";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"!(cleanupFSM getFSMVariable ""stopfsm"")"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "End_Cleanup_">*/
+                class End_Cleanup_
+                {
+                        name = "End_Cleanup_";
+                        itemno = 8;
+                        init = /*%FSM<STATEINIT""">*/""/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                        };
+                };
+                /*%FSM</STATE>*/
+        };
+        initState="init";
+        finalStates[] =
+        {
+                "End_Cleanup_",
+        };
+};
+/*%FSM</COMPILE>*/
